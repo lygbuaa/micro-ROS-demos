@@ -9,7 +9,7 @@ find_package(std_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(rmw_microxrcedds REQUIRED)
 
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME} planning.c)
 
 ament_target_dependencies(${PROJECT_NAME}
   rcl
