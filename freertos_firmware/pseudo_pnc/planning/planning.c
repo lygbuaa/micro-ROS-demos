@@ -13,6 +13,9 @@
 
 #ifdef UROS_USE_FREERTOS_MEM_ALLOC
 #include "extra_source/extra_source.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include "projdefs.h"
 #endif
 
 #define ARRAY_LEN 128
@@ -57,6 +60,20 @@ static void localization_callback(const void * msg_ptr)
 	RCSOFTCHECK(rcl_publish(&g_publisher_, pose_ptr, NULL));
 }
 
+static void rclc_support_init_lazy(rclc_support_t* ptr_support, int argc, const char * const * argv, rcl_allocator_t* ptr_allocator)
+{
+	while(rclc_support_init(ptr_support, argc, argv, ptr_allocator) != RCL_RET_OK){
+		printf("rclc_support_init error: %s, sleep 1s and retry.\n", rcl_get_error_string().str);
+		RCSOFTCHECK(rclc_support_fini(ptr_support));
+#ifdef UROS_USE_FREERTOS_MEM_ALLOC
+		vTaskDelay(pdMS_TO_TICKS(1000));
+#else
+		sleep(1);
+#endif
+	}
+	printf("rclc_support_init success\n");
+}
+
 #ifdef UROS_USE_FREERTOS_MEM_ALLOC
 int uros_pseudo_pnc_planning_demo(void)
 #else
@@ -80,9 +97,9 @@ int main(int argc, const char * const * argv)
 
 	// create init_options
 #ifdef UROS_USE_FREERTOS_MEM_ALLOC
-	RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
+	rclc_support_init_lazy(&support, 0, NULL, &allocator);
 #else
-	RCCHECK(rclc_support_init(&support, argc, argv, &allocator));
+	rclc_support_init_lazy(&support, argc, argv, &allocator);
 #endif
 
 	// create node
@@ -140,6 +157,7 @@ int main(int argc, const char * const * argv)
 	RCCHECK(rcl_publisher_fini(&g_heartbeat_, &node))
 	RCCHECK(rcl_subscription_fini(&g_subscriber_, &node));
 	RCCHECK(rcl_node_fini(&node))
+	RCCHECK(rclc_support_fini(&support));
 
 	return 0;
 }
