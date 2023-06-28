@@ -20,8 +20,9 @@ ros2 run micro_ros_agent micro_ros_agent udp4 --port 8888 &
 
 # Use RMW Micro XRCE-DDS implementation
 export RMW_IMPLEMENTATION=rmw_microxrcedds
-ros2 run pseudo_pnc planning &
-ros2 run pseudo_pnc control
+# ros2 run pseudo_pnc planning &
+# ros2 run pseudo_pnc control
+ros2 run pseudo_pnc pnc
 
 # kill -15 `ps -e | grep "control" | awk '{print $1}'`
 kill -15 `ps -e | grep "planning" | awk '{print $1}'`

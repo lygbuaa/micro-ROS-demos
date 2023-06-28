@@ -29,8 +29,9 @@ function(export_executable)
     )
 endfunction()
 
-export_executable(control)
-export_executable(planning)
+# export_executable(control)
+# export_executable(planning)
+export_executable(pnc)
 # export_executable(configuration_example custom_transports)
 
 if(EXISTS ${CMAKE_BINARY_DIR}/temp_install/)
